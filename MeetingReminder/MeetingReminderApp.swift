@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct MeetingReminderApp: App {
     var body: some Scene {
-        WindowGroup {
+        MenuBarExtra("しっかリマインダー", systemImage: "calendar.badge.clock") {
             ContentView()
         }
     }

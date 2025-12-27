@@ -9,89 +9,63 @@ import SwiftUI
 import EventKit
 
 struct ContentView: View {
-    private let eventStore = EKEventStore()
-    @State private var eventTitle: String = "カレンダーの予定を待機中..."
+    @StateObject private var calendarService = CalendarService()
 
     var body: some View {
-        VStack {
-            Image(systemName: "calendar")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text(eventTitle)
-        }
-        .padding()
-        .onAppear(perform: requestCalendarAccess)
-    }
-
-    private func requestCalendarAccess() {
-        // macOS 14.0以上で利用可能な新しいAPIを使用
-        if #available(macOS 14.0, *) {
-            eventStore.requestFullAccessToEvents { granted, error in
-                if let error = error {
-                    print("カレンダーアクセス権のリクエスト中にエラー発生: \(error.localizedDescription)")
-                    DispatchQueue.main.async {
-                        self.eventTitle = "アクセスエラー"
-                    }
-                    return
-                }
-                
-                if granted {
-                    print("カレンダーへのフルアクセスが許可されました。")
-                    fetchUpcomingEvent()
-                } else {
-                    print("カレンダーへのアクセスが拒否されました。")
-                    DispatchQueue.main.async {
-                        self.eventTitle = "カレンダーへのアクセスが拒否されました。"
+        VStack(spacing: 0) {
+            if calendarService.isLoading {
+                Spacer()
+                ProgressView()
+                    .padding()
+                Text("予定を読み込み中...")
+                Spacer()
+            } else if !calendarService.accessGranted {
+                Spacer()
+                Text("カレンダーへのアクセスが許可されていません。")
+                    .padding()
+                Button("設定を開く") {
+                    // システム設定のカレンダーアクセス画面を開く
+                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars") {
+                        NSWorkspace.shared.open(url)
                     }
                 }
-            }
-        } else {
-            // 古いmacOSバージョン用のフォールバック
-            eventStore.requestAccess(to: .event) { granted, error in
-                if let error = error {
-                    print("カレンダーアクセス権のリクエスト中にエラー発生: \(error.localizedDescription)")
-                    DispatchQueue.main.async {
-                        self.eventTitle = "アクセスエラー"
-                    }
-                    return
-                }
-                
-                if granted {
-                    print("カレンダーへのアクセスが許可されました。")
-                    fetchUpcomingEvent()
-                } else {
-                    print("カレンダーへのアクセスが拒否されました。")
-                    DispatchQueue.main.async {
-                        self.eventTitle = "カレンダーへのアクセスが拒否されました。"
+                Spacer()
+            } else if calendarService.events.isEmpty {
+                Spacer()
+                Text("今日の予定はありません。")
+                    .padding()
+                Spacer()
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(calendarService.events, id: \.eventIdentifier) { event in
+                            VStack(alignment: .leading) {
+                                Text(event.title)
+                                    .fontWeight(.bold)
+                                Text("\(event.startDate.formatted(date: .omitted, time: .shortened)) - \(event.endDate.formatted(date: .omitted, time: .shortened))")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal)
+                            
+                            Divider()
+                        }
                     }
                 }
             }
-        }
-    }
-
-    private func fetchUpcomingEvent() {
-        let now = Date()
-        let endDate = now.addingTimeInterval(24 * 60 * 60) // 今から24時間後
-        let predicate = eventStore.predicateForEvents(withStart: now, end: endDate, calendars: nil)
-        
-        let events = eventStore.events(matching: predicate)
-        
-        if let firstEvent = events.first {
-            // デバッグコンソールに表示
-            print("--- 直近の予定 ---")
-            print("タイトル: \(firstEvent.title ?? "名称未設定")")
-            print("開始時刻: \(firstEvent.startDate.formatted())")
-            print("終了時刻: \(firstEvent.endDate.formatted())")
-            print("--------------------")
             
-            DispatchQueue.main.async {
-                self.eventTitle = firstEvent.title ?? "名称未設定"
+            Divider()
+            
+            Button("終了") {
+                NSApplication.shared.terminate(nil)
             }
-        } else {
-            print("今後24時間以内に予定は見つかりませんでした。")
-            DispatchQueue.main.async {
-                self.eventTitle = "直近の予定はありません"
-            }
+            .padding(.vertical, 8)
+
+        }
+        .frame(width: 300, height: 400)
+        .onAppear {
+            calendarService.requestAccess()
         }
     }
 }
