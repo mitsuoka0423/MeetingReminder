@@ -18,28 +18,60 @@ struct OverlayView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 15) {
             
             // 予定タイトル
             Text(event.title)
-                .font(.system(size: 60, weight: .bold, design: .default))
+                .font(.system(size: 48, weight: .bold, design: .default))
                 .multilineTextAlignment(.center)
-                .shadow(radius: 4)
+                .shadow(radius: 3)
+                .padding(.top)
 
             // 開催時間
             Text("\(event.startDate.formatted(date: .omitted, time: .shortened)) - \(event.endDate.formatted(date: .omitted, time: .shortened))")
-                .font(.system(size: 32, weight: .regular))
+                .font(.system(size: 28, weight: .regular))
                 .opacity(0.8)
+            
+            // 説明と参加者を表示するスクロール領域
+            ScrollView {
+                VStack(alignment: .leading, spacing: 15) {
+                    // 説明（メモ）
+                    if let notes = event.notes, !notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text("説明")
+                            .font(.headline)
+                            .padding(.bottom, 2)
+                        Text(notes)
+                            .font(.body)
+                        Divider()
+                    }
+                    
+                    // 参加者
+                    if let attendees = event.attendees, !attendees.isEmpty {
+                        Text("参加者")
+                            .font(.headline)
+                            .padding(.bottom, 2)
+                        ForEach(attendees, id: \.self) {
+                            attendee in
+                            Text(attendee.name ?? "不明な参加者")
+                        }
+                    }
+                }
+                .padding()
+            }
+            .background(Color.primary.opacity(0.05))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .frame(maxHeight: 200) // スクロール領域の最大の高さを制限
 
+            // ボタン領域
             HStack(spacing: 30) {
                 // 閉じるボタン
                 Button(action: dismissAction) {
                     Text("閉じる")
-                        .font(.title)
-                        .padding(.horizontal, 40)
-                        .padding(.vertical, 15)
+                        .font(.title2)
+                        .padding(.horizontal, 30)
+                        .padding(.vertical, 10)
                 }
-                .keyboardShortcut(.escape, modifiers: []) // Escキーで閉じられるようにする
+                .keyboardShortcut(.escape, modifiers: [])
 
                 // 参加ボタン (URLが見つかった場合のみ表示)
                 if let url = meetingURL {
@@ -48,26 +80,24 @@ struct OverlayView: View {
                         dismissAction() // 参加したらオーバーレイを閉じる
                     }) {
                         Text("参加する")
-                            .font(.title)
+                            .font(.title2)
                             .fontWeight(.bold)
-                            .padding(.horizontal, 40)
-                            .padding(.vertical, 15)
+                            .padding(.horizontal, 30)
+                            .padding(.vertical, 10)
                     }
                     .controlSize(.large)
                 }
             }
-            .padding(.top, 40)
+            .padding(.bottom)
         }
-        .padding(60)
+        .padding(40)
+        .padding(.horizontal, 80) // 追加の左右マージン
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.ultraThinMaterial)
         .foregroundColor(.primary)
-        // Escキーで閉じるための見えないボタン
         .background(
-            Button("") {
-                dismissAction()
-            }
-            .keyboardShortcut(.escape, modifiers: [])
+            Button("", action: dismissAction)
+                .keyboardShortcut(.escape, modifiers: [])
         )
     }
 }
@@ -80,8 +110,7 @@ struct OverlayView_Previews: PreviewProvider {
         dummyEvent.title = "プロジェクト定例会議"
         dummyEvent.startDate = Date().addingTimeInterval(60 * 10)
         dummyEvent.endDate = Date().addingTimeInterval(60 * 70)
-        // プレビュー用にダミーのURLをメモに追加
-        dummyEvent.notes = "これはテスト用のメモです。会議URL: https://meet.google.com/abc-def-ghi"
+        dummyEvent.notes = "これはテスト用のメモです。\n複数行にわたるテキストも確認します。\n会議URL: https://meet.google.com/abc-def-ghi"
         
         return OverlayView(event: dummyEvent, dismissAction: {
             print("Dismiss action triggered.")
