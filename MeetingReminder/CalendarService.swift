@@ -9,16 +9,21 @@ import Foundation
 import EventKit
 import Combine
 
-class CalendarService: ObservableObject {
+class CalendarService: NSObject, ObservableObject {
     private let eventStore = EKEventStore()
     
     @Published var events: [EKEvent] = []
     @Published var accessGranted = false
     @Published var isLoading = true
     
+    // 通知を発動させるためのシグナル
+    let notificationTrigger = PassthroughSubject<EKEvent, Never>()
+    
     private var cancellables = Set<AnyCancellable>()
+    private var notificationTimer: Timer?
 
-    init() {
+    override init() {
+        super.init()
         // EKEventStoreの変更を監視する
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
             .sink { [weak self] _ in
@@ -86,6 +91,45 @@ class CalendarService: ObservableObject {
                 print("タイトル: \(event.title ?? "名称未設定") @ \(event.startDate.formatted())")
             }
             print("--------------------")
+            
+            // 予定リストを更新したので、次の通知をスケジュールする
+            self.scheduleNextNotification()
         }
+    }
+    
+    private func scheduleNextNotification() {
+        // 既存のタイマーをキャンセル
+        notificationTimer?.invalidate()
+        
+        // 未来の予定の中から直近のものを探す
+        guard let nextEvent = events.first(where: { $0.startDate > Date() }) else {
+            print("通知対象となる次の予定はありません。")
+            return
+        }
+        
+        // 通知時刻を予定の1分前に設定
+        let triggerDate = nextEvent.startDate.addingTimeInterval(-60)
+        
+        // 通知時刻が過去のものは無視
+        guard triggerDate > Date() else {
+            print("次の予定「\(nextEvent.title ?? "")」は既に開始時刻を過ぎているため、通知はスケジュールされません。")
+            return
+        }
+        
+        print("次の予定「\(nextEvent.title ?? "")」の通知を \(triggerDate.formatted()) にスケジュールしました。")
+        
+        // タイマーを設定
+        notificationTimer = Timer(fireAt: triggerDate, interval: 0, target: self, selector: #selector(fireNotification), userInfo: nextEvent, repeats: false)
+        RunLoop.main.add(notificationTimer!, forMode: .common)
+    }
+    
+    @objc private func fireNotification(timer: Timer) {
+        guard let event = timer.userInfo as? EKEvent else { return }
+        
+        print("[\(Date().formatted())] 通知トリガー発動: \(event.title ?? "名称未設定")")
+        notificationTrigger.send(event)
+        
+        // 次の通知をスケジュールする
+        scheduleNextNotification()
     }
 }

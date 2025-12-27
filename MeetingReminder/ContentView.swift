@@ -9,7 +9,7 @@ import SwiftUI
 import EventKit
 
 struct ContentView: View {
-    @StateObject private var calendarService = CalendarService()
+    @EnvironmentObject private var calendarService: CalendarService
 
     var body: some View {
         VStack(spacing: 0) {
