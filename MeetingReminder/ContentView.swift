@@ -10,6 +10,7 @@ import EventKit
 
 struct ContentView: View {
     @EnvironmentObject private var calendarService: CalendarService
+    @Environment(\.openSettings) private var openSettings // 設定画面を開くための環境変数
 
     var body: some View {
         VStack(spacing: 0) {
@@ -68,6 +69,12 @@ struct ContentView: View {
             
             Divider()
             
+            // 設定ボタンを追加
+            Button("設定...") {
+                openSettings()
+            }
+            .padding(.vertical, 8)
+
             Button("終了") {
                 NSApplication.shared.terminate(nil)
             }
@@ -82,7 +89,8 @@ struct ContentView: View {
 }
 
 #Preview {
-    // プレビューが動作するように、モックのCalendarServiceを渡す
+    // プレビューが動作するように、モックのCalendarServiceとUserSettingsを渡す
     ContentView()
-        .environmentObject(CalendarService())
+        .environmentObject(CalendarService(userSettings: UserSettings()))
+        .environmentObject(UserSettings())
 }

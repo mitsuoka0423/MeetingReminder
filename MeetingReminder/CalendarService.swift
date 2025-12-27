@@ -11,6 +11,7 @@ import Combine
 
 class CalendarService: NSObject, ObservableObject {
     private let eventStore = EKEventStore()
+    private let userSettings: UserSettings // UserSettingsへの参照を追加
     
     @Published var events: [EKEvent] = []
     @Published var accessGranted = false
@@ -22,13 +23,23 @@ class CalendarService: NSObject, ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var notificationTimer: Timer?
 
-    override init() {
+    init(userSettings: UserSettings) { // UserSettingsを引数で受け取る
+        self.userSettings = userSettings
         super.init()
+        
         // EKEventStoreの変更を監視する
         NotificationCenter.default.publisher(for: .EKEventStoreChanged)
             .sink { [weak self] _ in
                 print("カレンダーの変更を検知しました。予定を再取得します。")
                 self?.fetchTodaysEvents()
+            }
+            .store(in: &cancellables)
+        
+        // UserSettingsの通知オフセットの変更を監視する
+        userSettings.$notificationOffsetInSeconds
+            .sink { [weak self] _ in
+                print("通知オフセットが変更されました。通知を再スケジュールします。")
+                self?.scheduleNextNotification()
             }
             .store(in: &cancellables)
     }
@@ -107,8 +118,8 @@ class CalendarService: NSObject, ObservableObject {
             return
         }
         
-        // 通知時刻を予定の1分前に設定
-        let triggerDate = nextEvent.startDate.addingTimeInterval(-60)
+        // 通知時刻をユーザー設定のオフセット前に設定
+        let triggerDate = nextEvent.startDate.addingTimeInterval(-userSettings.notificationOffsetInSeconds)
         
         // 通知時刻が過去のものは無視
         guard triggerDate > Date() else {
