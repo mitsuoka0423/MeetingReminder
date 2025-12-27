@@ -39,12 +39,23 @@ struct ContentView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(calendarService.events, id: \.eventIdentifier) { event in
-                            VStack(alignment: .leading) {
-                                Text(event.title)
-                                    .fontWeight(.bold)
-                                Text("\(event.startDate.formatted(date: .omitted, time: .shortened)) - \(event.endDate.formatted(date: .omitted, time: .shortened))")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(event.title)
+                                        .fontWeight(.bold)
+                                    Text("\(event.startDate.formatted(date: .omitted, time: .shortened)) - \(event.endDate.formatted(date: .omitted, time: .shortened))")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                // URLが見つかった場合のみ参加ボタンを表示
+                                if let url = MeetingURLFinder.find(in: event) {
+                                    Button("参加") {
+                                        NSWorkspace.shared.open(url)
+                                    }
+                                }
                             }
                             .padding(.vertical, 8)
                             .padding(.horizontal)
@@ -63,7 +74,7 @@ struct ContentView: View {
             .padding(.vertical, 8)
 
         }
-        .frame(width: 300, height: 400)
+        .frame(width: 320, height: 400) // ボタン追加のため少し幅を広げる
         .onAppear {
             calendarService.requestAccess()
         }
@@ -71,5 +82,7 @@ struct ContentView: View {
 }
 
 #Preview {
+    // プレビューが動作するように、モックのCalendarServiceを渡す
     ContentView()
+        .environmentObject(CalendarService())
 }

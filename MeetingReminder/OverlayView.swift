@@ -11,6 +11,11 @@ import EventKit
 struct OverlayView: View {
     let event: EKEvent
     let dismissAction: () -> Void
+    
+    // ミーティングURLを検索
+    private var meetingURL: URL? {
+        MeetingURLFinder.find(in: event)
+    }
 
     var body: some View {
         VStack(spacing: 20) {
@@ -36,19 +41,20 @@ struct OverlayView: View {
                 }
                 .keyboardShortcut(.escape, modifiers: []) // Escキーで閉じられるようにする
 
-                // 参加ボタン (現時点ではプレースホルダー)
-                Button(action: {
-                    // TODO: ミーティングURLを開く処理を実装
-                    print("参加ボタンが押されました。")
-                    dismissAction()
-                }) {
-                    Text("参加する")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .padding(.horizontal, 40)
-                        .padding(.vertical, 15)
+                // 参加ボタン (URLが見つかった場合のみ表示)
+                if let url = meetingURL {
+                    Button(action: {
+                        NSWorkspace.shared.open(url)
+                        dismissAction() // 参加したらオーバーレイを閉じる
+                    }) {
+                        Text("参加する")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .padding(.horizontal, 40)
+                            .padding(.vertical, 15)
+                    }
+                    .controlSize(.large)
                 }
-                .controlSize(.large)
             }
             .padding(.top, 40)
         }
@@ -74,6 +80,8 @@ struct OverlayView_Previews: PreviewProvider {
         dummyEvent.title = "プロジェクト定例会議"
         dummyEvent.startDate = Date().addingTimeInterval(60 * 10)
         dummyEvent.endDate = Date().addingTimeInterval(60 * 70)
+        // プレビュー用にダミーのURLをメモに追加
+        dummyEvent.notes = "これはテスト用のメモです。会議URL: https://meet.google.com/abc-def-ghi"
         
         return OverlayView(event: dummyEvent, dismissAction: {
             print("Dismiss action triggered.")
