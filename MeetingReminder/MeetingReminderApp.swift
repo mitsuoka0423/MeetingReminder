@@ -12,7 +12,7 @@ import UserNotifications
 struct MeetingReminderApp: App {
     // アプリのライフサイクル全体で共有されるサービスとマネージャーを初期化
     @StateObject private var calendarService: CalendarService
-    @StateObject private var overlayWindowManager: OverlayWindowManager
+    @StateObject private var overlayWindowManager: MeetingAlertManager
     @StateObject private var userSettings = UserSettings() // UserSettingsを追加
 
     init() {
@@ -25,7 +25,7 @@ struct MeetingReminderApp: App {
         _calendarService = StateObject(wrappedValue: service)
         
         // OverlayWindowManagerを初期化し、CalendarServiceを渡す
-        _overlayWindowManager = StateObject(wrappedValue: OverlayWindowManager(calendarService: service))
+        _overlayWindowManager = StateObject(wrappedValue: MeetingAlertManager(calendarService: service))
         
         // 起動通知を表示
         showLaunchNotification()

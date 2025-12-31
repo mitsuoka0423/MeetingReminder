@@ -3,7 +3,7 @@ import SwiftUI
 import EventKit
 
 struct DebugView: View {
-    @EnvironmentObject private var overlayWindowManager: OverlayWindowManager
+    @EnvironmentObject private var overlayWindowManager: MeetingAlertManager
     @Environment(\.dismiss) private var dismiss
 
     // テストケースを名前でソートして表示
@@ -59,7 +59,7 @@ struct DebugView: View {
 struct DebugView_Previews: PreviewProvider {
     static var previews: some View {
         DebugView()
-            .environmentObject(OverlayWindowManager(calendarService: CalendarService(userSettings: UserSettings())))
+            .environmentObject(MeetingAlertManager(calendarService: CalendarService(userSettings: UserSettings())))
     }
 }
 #endif

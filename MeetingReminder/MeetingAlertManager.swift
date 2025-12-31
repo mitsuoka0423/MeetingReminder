@@ -11,7 +11,7 @@ import Combine
 import EventKit
 
 // オーバーレイ表示用のカスタムNSPanel
-class OverlayPanel: NSPanel {
+class MeetingAlertPanel: NSPanel {
     init(contentRect: NSRect, backing: NSWindow.BackingStoreType, defer flag: Bool) {
         super.init(contentRect: contentRect, styleMask: [.borderless, .nonactivatingPanel], backing: backing, defer: flag)
         
@@ -32,11 +32,11 @@ class OverlayPanel: NSPanel {
 }
 
 
-class OverlayWindowManager: ObservableObject {
+class MeetingAlertManager: ObservableObject {
     private var calendarService: CalendarService
     private var cancellables = Set<AnyCancellable>()
     
-    private var overlayWindow: OverlayPanel?
+    private var overlayWindow: MeetingAlertPanel?
 
     init(calendarService: CalendarService) {
         self.calendarService = calendarService
@@ -70,7 +70,7 @@ class OverlayWindowManager: ObservableObject {
         let hostingView = NSHostingView(rootView: overlayView)
         
         // パネルを作成
-        let panel = OverlayPanel(contentRect: mainScreen.frame, backing: .buffered, defer: false)
+        let panel = MeetingAlertPanel(contentRect: mainScreen.frame, backing: .buffered, defer: false)
         panel.title = "しっかリマインダー: \(event.title ?? "通知")"
         panel.contentView = hostingView
         panel.contentView?.wantsLayer = true

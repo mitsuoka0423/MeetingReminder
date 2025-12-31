@@ -10,7 +10,7 @@ import EventKit
 
 struct QuickMenuView: View {
     @EnvironmentObject private var calendarService: CalendarService
-    @EnvironmentObject private var overlayWindowManager: OverlayWindowManager
+    @EnvironmentObject private var overlayWindowManager: MeetingAlertManager
     @Environment(\.openSettings) private var openSettings // 設定画面を開くための環境変数
     @Environment(\.openWindow) private var openWindow
 
@@ -116,6 +116,6 @@ struct QuickMenuView: View {
     // プレビューが動作するように、モックのCalendarServiceとUserSettingsを渡す
     QuickMenuView()
         .environmentObject(CalendarService(userSettings: UserSettings()))
-        .environmentObject(OverlayWindowManager(calendarService: CalendarService(userSettings: UserSettings())))
+        .environmentObject(MeetingAlertManager(calendarService: CalendarService(userSettings: UserSettings())))
         .environmentObject(UserSettings())
 }
