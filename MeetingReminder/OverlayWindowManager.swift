@@ -71,6 +71,7 @@ class OverlayWindowManager: ObservableObject {
         
         // パネルを作成
         let panel = OverlayPanel(contentRect: mainScreen.frame, backing: .buffered, defer: false)
+        panel.title = "しっかリマインダー: \(event.title ?? "通知")"
         panel.contentView = hostingView
         panel.contentView?.wantsLayer = true
         panel.contentView?.layer?.isOpaque = false

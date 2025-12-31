@@ -16,6 +16,19 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // --- ヘッダーエリア ---
+            VStack(spacing: 4) {
+                Text("しっかリマインダー")
+                    .font(.headline)
+                Text("今日の予定")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.vertical, 12)
+
+            Divider()
+
+            // --- コンテンツエリア ---
             if calendarService.isLoading {
                 Spacer()
                 ProgressView()
