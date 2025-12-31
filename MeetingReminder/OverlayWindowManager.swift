@@ -75,9 +75,6 @@ class OverlayWindowManager: ObservableObject {
         panel.contentView?.wantsLayer = true
         panel.contentView?.layer?.isOpaque = false
         
-        // 画面中央に配置
-        panel.center()
-        
         // 表示
         panel.makeKeyAndOrderFront(nil)
         
