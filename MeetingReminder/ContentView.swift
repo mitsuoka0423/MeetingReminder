@@ -10,7 +10,9 @@ import EventKit
 
 struct ContentView: View {
     @EnvironmentObject private var calendarService: CalendarService
+    @EnvironmentObject private var overlayWindowManager: OverlayWindowManager
     @Environment(\.openSettings) private var openSettings // 設定画面を開くための環境変数
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         VStack(spacing: 0) {
@@ -40,28 +42,30 @@ struct ContentView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(calendarService.events, id: \.eventIdentifier) { event in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(event.title)
-                                        .fontWeight(.bold)
-                                    Text("\(event.startDate.formatted(date: .omitted, time: .shortened)) - \(event.endDate.formatted(date: .omitted, time: .shortened))")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                                
-                                // URLが見つかった場合のみ参加ボタンを表示
-                                if let url = MeetingURLFinder.find(in: event) {
-                                    Button("参加") {
-                                        NSWorkspace.shared.open(url)
+                            if let title = event.title, !title.isEmpty {
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(title)
+                                            .fontWeight(.bold)
+                                        Text("\(event.startDate.formatted(date: .omitted, time: .shortened)) - \(event.endDate.formatted(date: .omitted, time: .shortened))")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    // URLが見つかった場合のみ参加ボタンを表示
+                                    if let url = MeetingURLFinder.find(in: event) {
+                                        Button("参加") {
+                                            NSWorkspace.shared.open(url)
+                                        }
                                     }
                                 }
+                                .padding(.vertical, 8)
+                                .padding(.horizontal)
+                                
+                                Divider()
                             }
-                            .padding(.vertical, 8)
-                            .padding(.horizontal)
-                            
-                            Divider()
                         }
                     }
                 }
@@ -74,6 +78,13 @@ struct ContentView: View {
                 openSettings()
             }
             .padding(.vertical, 8)
+
+            #if DEBUG
+            Button("デバッグ...") {
+                openWindow(id: "debug-window")
+            }
+            .padding(.vertical, 8)
+            #endif
 
             Button("終了") {
                 NSApplication.shared.terminate(nil)
@@ -92,5 +103,6 @@ struct ContentView: View {
     // プレビューが動作するように、モックのCalendarServiceとUserSettingsを渡す
     ContentView()
         .environmentObject(CalendarService(userSettings: UserSettings()))
+        .environmentObject(OverlayWindowManager(calendarService: CalendarService(userSettings: UserSettings())))
         .environmentObject(UserSettings())
 }

@@ -29,16 +29,25 @@ struct MeetingReminderApp: App {
 
     var body: some Scene {
         MenuBarExtra("しっかリマインダー", systemImage: "calendar.badge.clock") {
-            // ContentViewにCalendarServiceとUserSettingsを渡す
+            // ContentViewに各種サービスを渡す
             ContentView()
                 .environmentObject(calendarService)
-                .environmentObject(userSettings) // UserSettingsを渡す
+                .environmentObject(overlayWindowManager) // OverlayWindowManagerを渡す
+                .environmentObject(userSettings)
         }
         
         // 設定画面を追加
         Settings {
             SettingsView()
-                .environmentObject(userSettings) // SettingsViewにUserSettingsを渡す
+                .environmentObject(userSettings)
         }
+        
+        #if DEBUG
+        Window("デバッグツール", id: "debug-window") {
+            DebugView()
+                .environmentObject(overlayWindowManager)
+        }
+        .defaultSize(width: 350, height: 450)
+        #endif
     }
 }

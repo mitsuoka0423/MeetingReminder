@@ -33,34 +33,36 @@ struct OverlayView: View {
                 .opacity(0.8)
             
             // 説明と参加者を表示するスクロール領域
-            ScrollView {
-                VStack(alignment: .leading, spacing: 15) {
-                    // 説明（メモ）
-                    if let notes = event.notes, !notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Text("説明")
-                            .font(.headline)
-                            .padding(.bottom, 2)
-                        Text(notes)
-                            .font(.body)
-                        Divider()
-                    }
-                    
-                    // 参加者
-                    if let attendees = event.attendees, !attendees.isEmpty {
-                        Text("参加者")
-                            .font(.headline)
-                            .padding(.bottom, 2)
-                        ForEach(attendees, id: \.self) {
-                            attendee in
-                            Text(attendee.name ?? "不明な参加者")
+            if (event.notes != nil && !event.notes!.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) || (event.attendees != nil && !event.attendees!.isEmpty) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 15) {
+                        // 説明（メモ）
+                        if let notes = event.notes, !notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            Text("説明")
+                                .font(.headline)
+                                .padding(.bottom, 2)
+                            Text(notes)
+                                .font(.body)
+                            Divider()
+                        }
+                        
+                        // 参加者
+                        if let attendees = event.attendees, !attendees.isEmpty {
+                            Text("参加者")
+                                .font(.headline)
+                                .padding(.bottom, 2)
+                            ForEach(attendees, id: \.self) {
+                                attendee in
+                                Text(attendee.name ?? "不明な参加者")
+                            }
                         }
                     }
+                    .padding()
                 }
-                .padding()
+                .background(Color.primary.opacity(0.05))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .frame(maxHeight: 200) // スクロール領域の最大の高さを制限
             }
-            .background(Color.primary.opacity(0.05))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .frame(maxHeight: 200) // スクロール領域の最大の高さを制限
 
             // ボタン領域
             HStack(spacing: 30) {

@@ -143,4 +143,18 @@ class CalendarService: NSObject, ObservableObject {
         // 次の通知をスケジュールする
         scheduleNextNotification()
     }
+    
+    #if DEBUG
+    /// デバッグ用に、次の予定の通知を即座にトリガーする
+    func triggerNextNotificationForDebug() {
+        // 未来の予定の中から直近のものを探す
+        guard let nextEvent = events.first(where: { $0.startDate > Date() }) else {
+            print("[DEBUG] 通知をトリガーする次の予定が見つかりません。")
+            return
+        }
+        
+        print("[DEBUG] 次の予定「\(nextEvent.title ?? "")」の通知を手動でトリガーします。")
+        notificationTrigger.send(nextEvent)
+    }
+    #endif
 }
