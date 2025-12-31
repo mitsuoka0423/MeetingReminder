@@ -63,7 +63,7 @@ class OverlayWindowManager: ObservableObject {
         }
 
         // SwiftUIビューを作成
-        let overlayView = OverlayView(event: event) { [weak self] in
+        let overlayView = MeetingAlertView(event: event) { [weak self] in
             self?.hideOverlay()
         }
         

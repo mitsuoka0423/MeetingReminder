@@ -8,7 +8,7 @@
 import SwiftUI
 import EventKit
 
-struct OverlayView: View {
+struct MeetingAlertView: View {
     let event: EKEvent
     let dismissAction: () -> Void
     
@@ -106,7 +106,7 @@ struct OverlayView: View {
 
 // プレビュー用のダミーデータ
 #if DEBUG
-struct OverlayView_Previews: PreviewProvider {
+struct MeetingAlertView_Previews: PreviewProvider {
     static var previews: some View {
         let dummyEvent = EKEvent(eventStore: EKEventStore())
         dummyEvent.title = "プロジェクト定例会議"
@@ -114,7 +114,7 @@ struct OverlayView_Previews: PreviewProvider {
         dummyEvent.endDate = Date().addingTimeInterval(60 * 70)
         dummyEvent.notes = "これはテスト用のメモです。\n複数行にわたるテキストも確認します。\n会議URL: https://meet.google.com/abc-def-ghi"
         
-        return OverlayView(event: dummyEvent, dismissAction: {
+        return MeetingAlertView(event: dummyEvent, dismissAction: {
             print("Dismiss action triggered.")
         })
     }
