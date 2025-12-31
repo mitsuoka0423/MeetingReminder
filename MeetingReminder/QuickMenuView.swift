@@ -8,7 +8,7 @@
 import SwiftUI
 import EventKit
 
-struct ContentView: View {
+struct QuickMenuView: View {
     @EnvironmentObject private var calendarService: CalendarService
     @EnvironmentObject private var overlayWindowManager: OverlayWindowManager
     @Environment(\.openSettings) private var openSettings // 設定画面を開くための環境変数
@@ -114,7 +114,7 @@ struct ContentView: View {
 
 #Preview {
     // プレビューが動作するように、モックのCalendarServiceとUserSettingsを渡す
-    ContentView()
+    QuickMenuView()
         .environmentObject(CalendarService(userSettings: UserSettings()))
         .environmentObject(OverlayWindowManager(calendarService: CalendarService(userSettings: UserSettings())))
         .environmentObject(UserSettings())

@@ -70,7 +70,7 @@ struct MeetingReminderApp: App {
     var body: some Scene {
         MenuBarExtra("しっかリマインダー", systemImage: "calendar.badge.clock") {
             // ContentViewに各種サービスを渡す
-            ContentView()
+            QuickMenuView()
                 .environmentObject(calendarService)
                 .environmentObject(overlayWindowManager) // OverlayWindowManagerを渡す
                 .environmentObject(userSettings)
