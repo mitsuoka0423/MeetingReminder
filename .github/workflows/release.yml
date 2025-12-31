@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-release:
     runs-on: macos-latest # macOS環境で実行
+    permissions:
+      contents: write # リリース作成とアセットアップロードのために必要
 
     steps:
     - name: Checkout code
