@@ -71,3 +71,33 @@ Validate /Users/{ユーザー名}/Library/Developer/Xcode/DerivedData/MeetingRem
 ```sh
 open <ビルドログに出力されたパス>
 ```
+
+### バージョンアップとリリースタグ
+
+新しいバージョンをリリースする際は、以下の手順に従ってください。
+
+1.  **バージョン番号の更新**:
+    `MeetingReminder.xcodeproj/project.pbxproj` ファイル内にある `MARKETING_VERSION` の値を、新しいバージョン番号（例: `0.0.5`）に更新します。
+
+2.  **変更のコミット**:
+    バージョン番号の更新をコミットします。コミットメッセージは `chore: バージョンを0.0.5に更新` のようにするのが規約です。
+
+    ```sh
+    git add .
+    git commit -m "chore: バージョンを0.0.5に更新"
+    ```
+
+3.  **Gitタグの作成**:
+    コミットに対して、注釈付きのGitタグを作成します。
+
+    ```sh
+    git tag -a v0.0.5 -m "Version 0.0.5"
+    ```
+
+4.  **プッシュ**:
+    最後に、コミットとタグの両方をリモートリポジトリにプッシュします。
+
+    ```sh
+    git push
+    git push origin v0.0.5
+    ```
