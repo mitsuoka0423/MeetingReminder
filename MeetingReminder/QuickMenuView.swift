@@ -53,33 +53,23 @@ struct QuickMenuView: View {
                 Spacer()
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(calendarService.events, id: \.eventIdentifier) { event in
-                            if let title = event.title, !title.isEmpty {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text(title)
-                                            .fontWeight(.bold)
-                                        Text("\(event.startDate.formatted(date: .omitted, time: .shortened)) - \(event.endDate.formatted(date: .omitted, time: .shortened))")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    // URLが見つかった場合のみ参加ボタンを表示
-                                    if let url = MeetingURLFinder.find(in: event) {
-                                        Button("参加") {
-                                            NSWorkspace.shared.open(url)
-                                        }
-                                    }
+                    ForEach(calendarService.events, id: \.eventIdentifier) { event in
+                        if let title = event.title, !title.isEmpty {
+                            Text(title)
+                                .fontWeight(.bold)
+                            Text("\(event.startDate.formatted(date: .omitted, time: .shortened)) - \(event.endDate.formatted(date: .omitted, time: .shortened))")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            
+                            // 右側のボタン要素をコンポーネントとして呼び出す
+                            if let url = MeetingURLFinder.find(in: event) {
+                                Button("参加") {
+                                    NSWorkspace.shared.open(url)
                                 }
-                                .padding(.vertical, 8)
-                                .padding(.horizontal)
-                                
-                                Divider()
                             }
                         }
+                        
+                        Divider()
                     }
                 }
             }

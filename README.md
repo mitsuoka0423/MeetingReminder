@@ -34,3 +34,40 @@
 
 ---
 *このドキュメントは、アプリケーションの主要な画面コンポーネントの呼び名を定義するために作成されました。*
+
+## 開発 (Development)
+
+### コマンドラインからのビルドフロー
+
+本プロジェクトは`xcodebuild`コマンドラインツールを使用してビルド、テスト、実行が可能です。
+
+#### 1. ビルド
+
+以下のコマンドでアプリケーションをビルドします。
+
+```sh
+xcodebuild -scheme MeetingReminder -configuration Debug build
+```
+
+#### 2. テスト
+
+単体テストおよびUIテストを実行するには、以下のコマンドを使用します。
+
+```sh
+xcodebuild -scheme MeetingReminder -configuration Debug test
+```
+
+#### 3. 実行
+
+ビルドが成功すると、成果物である `.app` ファイルのパスがビルドログの最後の方に出力されます。ログの中から `Validate` や `CodeSign` といったステップを探し、`MeetingReminder.app` へのパスを見つけます。
+
+```
+# ビルドログの出力例
+Validate /Users/{ユーザー名}/Library/Developer/Xcode/DerivedData/MeetingReminder-gbyglmlhmaafwmarawnacvbddrqm/Build/Products/Debug/MeetingReminder.app
+```
+
+このパスをコピーし、`open` コマンドでアプリケーションを起動します。
+
+```sh
+open <ビルドログに出力されたパス>
+```
