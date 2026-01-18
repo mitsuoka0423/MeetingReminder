@@ -88,6 +88,8 @@ struct MeetingAlertView: View {
                             .padding(.vertical, 10)
                     }
                     .controlSize(.large)
+                    .buttonStyle(.borderedProminent) // ボタンのスタイルを強調
+                    .keyboardShortcut(.defaultAction) // Enterキーで実行
                 }
             }
             .padding(.bottom)
